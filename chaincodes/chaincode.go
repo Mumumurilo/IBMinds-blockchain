@@ -19,6 +19,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -78,6 +79,40 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+// ============================================================================================================================
+// InitDemo - Initializes all that is needed to run the code
+//
+// 0 = Institution 1 ID
+// 1 = Institution 1 name
+// 2 = Institution 2 ID
+// 3 = Institution 2 name
+// 4 = Institution 3 ID
+// 5 = Institution 3 name
+// ============================================================================================================================
+func (t *SimpleChaincode) InitDemo(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+
+	if len(args) != 6 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 6")
+	}
+
+	// Declaring variables
+	var initInstitutions = Institution{}
+	var institutionsList []Institution
+
+	// Creates all institutions with no patients
+	initInstitutions = generateInstitution(stub, strconv.Itoa(1), "Hospital 1")
+	institutionsList = append(institutionsList, initInstitutions)
+
+	initInstitutions = generateInstitution(stub, strconv.Itoa(2), "Hospital 2")
+	institutionsList = append(institutionsList, initInstitutions)
+
+	initInstitutions = generateInstitution(stub, strconv.Itoa(3), "Clinic 1")
+	institutionsList = append(institutionsList, initInstitutions)
+
+	return nil, nil
+}
+
 // Invoke isur entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
@@ -87,6 +122,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Init(stub, "init", args)
 	} else if function == "write" {
 		return t.write(stub, args)
+	} else if function == "initdemo" {
+		return t.InitDemo(stub, args)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -142,4 +179,25 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 	}
 
 	return valAsbytes, nil
+}
+
+// Generates a new institution
+func generateInstitution(stub shim.ChaincodeStubInterface, ID string, name string) Institution {
+	var err error
+
+	var initInstitutions = Institution{}
+
+	//Assigns the parameters to the temporary Institution struct
+	initInstitutions.ID, err = strconv.Atoi(ID)
+	if err != nil {
+		msg := "initInstitutions.IdInstitution error: " + ID
+		fmt.Println(msg)
+		os.Exit(1)
+	}
+
+	initInstitutions.Name = name
+
+	fmt.Println("Institution " + name + " successfully created")
+
+	return initInstitutions
 }
