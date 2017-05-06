@@ -19,9 +19,29 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
+
+type Institution struct {
+	ID       int       `json: "id"`
+	Name     string    `json: "name"`
+	Patients []Patient `json: "patients"`
+}
+
+type Patient struct {
+	ID      int       `json: "id"`
+	Name    string    `json: "name"`
+	Cpf     int       `json: "cpf"`
+	History []History `json: "history"`
+}
+
+type History struct {
+	ID          int    `json: "id"`
+	Title       string `json: "title"`
+	Description string `json: "description"`
+}
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
@@ -36,11 +56,21 @@ func main() {
 
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	var Aval int
+	var err error
+
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 
-	err := stub.PutState("hello_world", []byte(args[0]))
+	// Initialize the chaincode
+	Aval, err = strconv.Atoi(args[0])
+	if err != nil {
+		return nil, errors.New("Expecting integer value for init")
+	}
+
+	// Write the state to the ledger
+	err = stub.PutState("abc", []byte(strconv.Itoa(Aval))) //making a test var "abc", I find it handy to read/write to it right away to test the network
 	if err != nil {
 		return nil, err
 	}
