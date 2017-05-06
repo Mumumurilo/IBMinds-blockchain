@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -24,6 +25,12 @@ import (
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
+
+// Keys for storing data in the ledger
+var openTradesStr = "_opentrades" //Description for the key/value that will store all open trades
+var institutionKey = "_institutions"
+var patientKey = "_patients"
+var historyKey = "_history"
 
 type Institution struct {
 	ID       int       `json: "id"`
@@ -109,6 +116,19 @@ func (t *SimpleChaincode) InitDemo(stub shim.ChaincodeStubInterface, args []stri
 
 	initInstitutions = generateInstitution(stub, strconv.Itoa(3), "Clinic 1")
 	institutionsList = append(institutionsList, initInstitutions)
+
+	// Adds institutions to the ledger via putState
+	institutionsBytesToWrite, err := json.Marshal(&institutionsList)
+	if err != nil {
+		fmt.Println("Error marshalling keys")
+		return nil, errors.New("Error marshalling the institutionsBytesToWrite")
+	}
+
+	err = stub.PutState(institutionKey, institutionsBytesToWrite)
+	if err != nil {
+		fmt.Println("Error writting keys institutionsBytesToWrite")
+		return nil, errors.New("Error writing the keys institutions	BytesToWrite")
+	}
 
 	return nil, nil
 }
