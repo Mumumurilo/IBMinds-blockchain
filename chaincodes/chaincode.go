@@ -130,6 +130,8 @@ func (t *SimpleChaincode) InitDemo(stub shim.ChaincodeStubInterface, args []stri
 		return nil, errors.New("Error writing the keys institutions	BytesToWrite")
 	}
 
+	// Creates three patients for each institution
+
 	return nil, nil
 }
 
@@ -184,21 +186,26 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 
 // read - query function to read key/value pair
 func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var key, jsonResp string
+	var arguments, jsonResp string
 	var err error
 
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
+	if len(args) < 1 {
+		return nil, errors.New("This function needs at least one argument to run.")
 	}
 
-	key = args[0]
-	valAsbytes, err := stub.GetState(key)
+	arguments = args[0]
+	fmt.Println("Looking for the id: " + arguments + " in the ledger...")
+	valAsbytes, err := stub.GetState(arguments) //get the var from chaincode state
 	if err != nil {
-		jsonResp = "{\"Error\":\"Failed to get state for " + key + "\"}"
+		jsonResp = "{\"Error\":\"Failed to get state for " + arguments + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+	if valAsbytes == nil {
+		jsonResp = "The argument sent did not return any data. Please review your arguments."
 		return nil, errors.New(jsonResp)
 	}
 
-	return valAsbytes, nil
+	return valAsbytes, nil //send it onward
 }
 
 // Generates a new institution
