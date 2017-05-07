@@ -106,15 +106,50 @@ func (t *SimpleChaincode) InitDemo(stub shim.ChaincodeStubInterface, args []stri
 	// Declaring variables
 	var initInstitutions = Institution{}
 	var institutionsList []Institution
+	var initPatients = Patient{}
+	var patientsList []Patient
+	var patientsList2 []Patient
+	var patientsList3 []Patient
 
-	// Creates all institutions with no patients
+	// Creates all institutions with three patients each
 	initInstitutions = generateInstitution(stub, strconv.Itoa(1), "Hospital 1")
+
+	initPatients = generatePatient(stub, "11", "John Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	initPatients = generatePatient(stub, "12", "Jane Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	initPatients = generatePatient(stub, "13", "Jake Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+
+	initInstitutions.Patients = patientsList
 	institutionsList = append(institutionsList, initInstitutions)
 
 	initInstitutions = generateInstitution(stub, strconv.Itoa(2), "Hospital 2")
+	initPatients = generatePatient(stub, "14", "Juan Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	patientsList2 = append(patientsList, initPatients)
+	initPatients = generatePatient(stub, "15", "Juno Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	patientsList2 = append(patientsList, initPatients)
+	initPatients = generatePatient(stub, "16", "Jarbas Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	patientsList2 = append(patientsList, initPatients)
+
+	initInstitutions.Patients = patientsList2
 	institutionsList = append(institutionsList, initInstitutions)
 
 	initInstitutions = generateInstitution(stub, strconv.Itoa(3), "Clinic 1")
+	initPatients = generatePatient(stub, "17", "Jean Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	patientsList3 = append(patientsList, initPatients)
+	initPatients = generatePatient(stub, "18", "Matias Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	patientsList3 = append(patientsList, initPatients)
+	initPatients = generatePatient(stub, "19", "Alan Doe", "123.123.123-12")
+	patientsList = append(patientsList, initPatients)
+	patientsList3 = append(patientsList, initPatients)
+
+	initInstitutions.Patients = patientsList3
 	institutionsList = append(institutionsList, initInstitutions)
 
 	// Adds institutions to the ledger via putState
@@ -130,7 +165,18 @@ func (t *SimpleChaincode) InitDemo(stub shim.ChaincodeStubInterface, args []stri
 		return nil, errors.New("Error writing the keys institutions	BytesToWrite")
 	}
 
-	// Creates three patients for each institution
+	// Adds patients to the ledger via putState
+	patientsBytesToWrite, err := json.Marshal(&patientsList)
+	if err != nil {
+		fmt.Println("Error marshalling keys")
+		return nil, errors.New("Error marshalling the institutionsBytesToWrite")
+	}
+
+	err = stub.PutState(patientKey, patientsBytesToWrite)
+	if err != nil {
+		fmt.Println("Error writting keys patientsBytesToWrite")
+		return nil, errors.New("Error writing the keys patients	BytesToWrite")
+	}
 
 	return nil, nil
 }
