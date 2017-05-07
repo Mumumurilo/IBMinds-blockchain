@@ -221,3 +221,31 @@ func generateInstitution(stub shim.ChaincodeStubInterface, ID string, name strin
 
 	return initInstitutions
 }
+
+// Generates a new patient
+func generatePatient(stub shim.ChaincodeStubInterface, ID string, name string, cpf string) Patient {
+	var err error
+
+	var initPatients = Patient{}
+
+	//Assigns the parameters to the temporary Patient struct
+	initPatients.ID, err = strconv.Atoi(ID)
+	if err != nil {
+		msg := "initPatients.ID error: " + ID
+		fmt.Println(msg)
+		os.Exit(1)
+	}
+
+	initPatients.Cpf, err = strconv.Atoi(cpf)
+	if err != nil {
+		msg := "initPatients.cpf error: " + cpf
+		fmt.Println(msg)
+		os.Exit(1)
+	}
+
+	initPatients.Name = name
+
+	fmt.Println("Patient " + name + " successfully created")
+
+	return initPatients
+}
